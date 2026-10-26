@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pojok Kita 💕</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<style>
+:root{--bg:#fff5f8;--card:#ffffff;--text:#4a2c3a;--muted:#9a7384;--accent:#ff6b9d;--accent2:#ffd6e5;--line:#f5d5e0;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1f1218;--card:#2c1a24;--text:#ffe8f0;--muted:#c79bb0;--accent:#ff7fae;--accent2:#4a2535;--line:#4a2d3b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1f1218;--card:#2c1a24;--text:#ffe8f0;--muted:#c79bb0;--accent:#ff7fae;--accent2:#4a2535;--line:#4a2d3b;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+.wrap{max-width:560px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.7rem;margin:8px 0 4px;text-align:center}
+.sub{text-align:center;color:var(--muted);margin:0 0 18px}
+.counter{background:var(--accent2);border-radius:18px;padding:14px;text-align:center;margin-bottom:18px;font-weight:700}
+.counter b{font-size:1.6rem;color:var(--accent)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px 10px;text-align:center;cursor:pointer;font:inherit;color:var(--text);transition:transform .15s}
+.tile:active{transform:scale(.96)}
+.grid .tile:last-child:nth-child(odd){grid-column:1/-1}
+.tile .e{font-size:2rem;display:block}
+.tile span.t{font-weight:800;display:block;margin-top:4px}
+.tile small{color:var(--muted)}
+.back{background:none;border:none;color:var(--accent);font:inherit;font-weight:800;cursor:pointer;padding:6px 0;margin-bottom:6px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+.btn{background:var(--accent);color:#fff;border:none;border-radius:999px;padding:12px 22px;font:inherit;font-weight:800;cursor:pointer}
+.btn:active{transform:scale(.96)}
+.center{text-align:center}
+.gift{font-size:5rem;display:inline-block;cursor:pointer}
+.shake{animation:sh .6s}
+@keyframes sh{0%,100%{transform:rotate(0)}20%{transform:rotate(-14deg)}40%{transform:rotate(14deg)}60%{transform:rotate(-10deg)}80%{transform:rotate(10deg)}}
+.prize{font-size:1.2rem;font-weight:800;color:var(--accent);min-height:3rem;margin-top:10px}
+.tl{border-left:3px solid var(--accent);margin-left:8px;padding-left:16px}
+.tl .item{margin-bottom:18px;position:relative}
+.tl .item::before{content:"";position:absolute;left:-23px;top:4px;width:11px;height:11px;border-radius:50%;background:var(--accent)}
+.date{font-size:.8rem;color:var(--muted);font-weight:700}
+.letter{width:100%;text-align:left;background:var(--card);border:2px dashed var(--accent);border-radius:16px;padding:14px;margin-bottom:10px;font:inherit;color:var(--text);cursor:pointer}
+.letter.open{border-style:solid;background:var(--accent2)}
+.letter .body{margin-top:8px;white-space:pre-line}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px;margin-bottom:8px;font:inherit;color:var(--text);cursor:pointer}
+.opt.ok{background:#c9f2d5;border-color:#4caf6d;color:#1b4a2a}
+.opt.no{background:#ffd0d0;border-color:#e05555;color:#5a1a1a}
+input,select,textarea{font:inherit;color:var(--text);background:var(--card);border:2px solid var(--line);border-radius:12px;padding:10px;width:100%;margin-bottom:8px}
+.row{display:flex;gap:8px;align-items:center}
+.row input{margin:0}
+.todo{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.todo.done .tx{text-decoration:line-through;color:var(--muted)}
+.todo .tx{flex:1}
+.x{background:none;border:none;font-size:1.1rem;cursor:pointer}
+.big{font-size:1.15rem;line-height:1.6;font-weight:700}
+.chip{background:var(--card);border:2px solid var(--line);border-radius:999px;padding:8px 14px;margin:0 4px 6px 0;font:inherit;font-weight:700;color:var(--text);cursor:pointer}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.tutup{font-weight:800;color:var(--accent);padding:4px 10px;border:2px solid var(--accent);border-radius:999px;font-size:.8rem;white-space:nowrap}
+.duel{display:flex;flex-direction:column;gap:8px;min-height:68vh}
+.pad{flex:1;border-radius:18px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.6rem;text-align:center;color:#fff;user-select:none;-webkit-user-select:none;touch-action:manipulation;padding:12px}
+.p0{background:#ff6b9d;transform:rotate(180deg)}
+.p1{background:#5b8cff}
+.mid{text-align:center;font-weight:800;font-size:1.2rem;min-height:2rem}
+.sb{font-size:2.2rem;background:#fff;border:none;border-radius:14px;padding:8px 14px;margin:0 4px;cursor:pointer}
+.hidden{display:none}
+#inv{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:50;max-width:536px;margin:0 auto;background:var(--accent);color:#fff;border-radius:16px;padding:12px 14px;font-weight:800;box-shadow:0 4px 14px rgba(0,0,0,.28);display:flex;gap:8px;align-items:center;justify-content:space-between}
+#inv.hidden{display:none}
+#inv button{font:inherit;font-weight:800;border:none;border-radius:999px;padding:8px 14px;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="inv" class="hidden"></div>
+<div class="wrap" id="app"></div>
+<script>
+/* ====== GANTI ISI DI SINI ====== */
+var CONFIG = {
+  judul: "Pojok Kita 💕",
+  nama: "Sayang",
+  pemain: ["Meii","Rifky"],
+  /* Isi dengan alamat Firebase Realtime Database kalian supaya 2 HP bisa saling terhubung.
+     Contoh: "https://nama-project-default-rtdb.asia-southeast1.firebasedatabase.app" */
+  firebaseUrl: "https://pojok-kita-e523d-default-rtdb.asia-southeast1.firebasedatabase.app",
+  taruhan: ["Traktir boba 🧋","Pijat 5 menit 💆","Jadi tukang foto di date berikutnya 📸","Pilihin film buat pemenang 🎬","Nyanyiin lagu buat pemenang 🎤","Kirim voice note berisi pujian 💌","Bayarin es krim 🍦","Jadi tukang antar minuman seharian 🥤"],
+  misi: ["Video call sambil makan menu yang sama 🍜","Kirim foto langit di tempat kalian masing-masing ☁️","Nonton satu film bareng lewat video call 🎬","Saling kirim lagu yang lagi disuka beserta alasannya 🎵","Foto semua benda biru di sekitar kalian dalam 1 menit 💙","Ceritain tiga hal kecil yang bikin hari ini menyenangkan ✨","Bikin rencana liburan impian berdua, minimal 3 tempat 🗺️","Jalan sore 15 menit sambil telepon 🚶","Saling kirim voice note berisi semangat 🎙️","Ceritain mimpi terbesar kamu tahun depan 🌟","Tulis 3 hal yang kamu syukuri dari pasanganmu 💌","Selfie dengan pose yang sama, lalu bandingkan 📸","Masak atau pesan makanan favorit pasanganmu 🍽️","Saling tunjukkan pemandangan dari jendela kalian 🪟","Rekam video 10 detik tentang apa yang lagi kamu lakukan 🎥","Tebak lagu yang lagi diputar pasanganmu 🎧","Sepakati satu tempat dari Gacha Date untuk dikunjungi bulan ini 📍","Video call sambil tidur-tiduran 10 menit 😴","Saling kirim foto masa kecil 🧒","Main satu ronde Duel Cepat 🎮"],
+  hadiah: ["Boleh minta 1 pelukan kapan aja 🤗","Dia yang traktir minuman pilihanmu 🧋","Kamu yang pilih film malam ini 🎬","Pijat 10 menit 💆","Kamu yang pilih tempat date berikutnya 🎡","Satu permintaan kecil dikabulkan 🎁"],
+  pilih: [["Pizza","Burger"],["Mie","Nasi"],["Pedas","Nggak pedas"],["Es krim","Kue"],["Kopi","Teh"],["Sushi","Ramen"],["Manis","Asin"],["Gunung","Pantai"],["Kota ramai","Desa tenang"],["Liburan dadakan","Liburan terencana"],["Jalan-jalan","Rebahan di rumah"],["Pagi hari","Malam hari"],["Chat","Telepon"],["Hujan","Panas"],["Film","Series"],["Anjing","Kucing"],["Bioskop","Nonton di rumah"],["Spontan","Terjadwal"],["Surprise","Direncanain bareng"],["Hadiah barang","Hadiah pengalaman"],["Dipeluk","Digandeng"],["Kata-kata manis","Aksi nyata"],["Dinner romantis","Piknik santai"],["Selfie bareng","Foto candid"],["Bisa terbang","Bisa baca pikiran"],["Hidup di masa lalu","Hidup di masa depan"],["Nggak bisa makan enak","Nggak bisa dengerin musik"],["Selalu telat","Selalu kecepatan"],["Main game bareng","Masak bareng"],["Dengerin cerita","Ngasih solusi"]],
+  truth: ["Apa hal pertama yang kamu perhatiin dari aku?","Momen paling bikin kamu baper sama aku?","Hal kecil apa dariku yang bikin kamu senyum?","Kapan kamu sadar mulai suka sama aku?","Ada kebiasaanku yang diam-diam kamu suka?","Tempat apa yang pengen banget kamu kunjungi bareng aku?","Mimpi apa yang pengen kamu wujudin bareng aku?","Lagu apa yang ngingetin kamu sama aku?","Apa yang bikin kamu nyaman di dekat aku?","Kalau besok kita bebas seharian, mau ngapain?","Hal apa yang pengen kamu bilang tapi belum sempat?","Apa kenangan favoritmu sama aku sejauh ini?"],
+  dare: ["Kirim voice note berisi tiga hal yang kamu suka dari dia.","Tirukan gaya bicara dia selama 30 detik.","Bikin pantun singkat buat dia sekarang.","Kirim selfie dengan ekspresi paling konyol.","Kasih pujian tulus tanpa kata cantik atau ganteng.","Bilang I love you dengan tiga gaya berbeda.","Gambar wajah dia dalam 30 detik, lalu tunjukin.","Ceritain kejadian paling lucu yang pernah kalian alami bareng.","Kirim 5 emoji yang menggambarkan hubungan kalian, lalu jelasin.","Nyanyiin lagu favorit kalian, boleh fals."],
+  mulai: "2024-10-07T00:00:00",
+  kupon: {
+    "🍜 Makan":["Sushi sepuasnya di Kappa Sushi, Jakarta 🍣","Shabu-shabu dan yakiniku AYCE di Hachi Grill, Jakarta 🍲","Grill sepuasnya di ShukaGrill, Summarecon Bekasi 🥩","Makan sepuasnya di Oh My Grill, Bekasi 🔥","Dinner santai di La Terrazza, Summarecon Bekasi 🌃","Ngopi sore di Kopi Nako, Summarecon Bekasi ☕","Nongkrong lama di Mattea Social Space, Bekasi 🪴","Ngopi di Tanatap Coffee atau Little Talk Coffee, Bekasi ☕","Dinner sambil live music di Koma Junkyard, Bekasi 🎶","Makan di 3 Cooks, Pekayon, Bekasi 🍽️"],
+    "📍 Jalan-jalan":["Main salju di Trans Snow World Bekasi ❄️","Seru-seruan di Transera Waterpark, Bekasi 🌊","Main air di Wet Waterpark, Grand Wisata Bekasi 💦","Foto-foto di Rainbow Garden, Bekasi 🌈","Lihat buaya di Taman Buaya Indonesia Jaya, Bekasi 🐊","Healing ke Curug Parigi, Bekasi 🌿","Nonton bioskop di Summarecon Mall Bekasi 🎬","Keliling kebun binatang Ragunan, Jakarta 🦒","Nunggu sunset di Pantai Ancol, Jakarta 🌅","Keliling Kota Tua Jakarta, foto-foto 📸","Ke Dufan Ancol seharian 🎢","Ke Taman Safari, Cisarua (Bogor) 🦁"],
+    "🏠 Santai di rumah":["Masak bareng dari resep random 🍝","Marathon film plus camilan 🍿","Main board game atau game berdua 🎮","Bikin kue atau cookies bareng 🍪","Spa day: masker, pijat, musik santai 🧖","Video call sambil makan bareng 📱"]
+  },
+  timeline: [
+    {tgl:"Agustus 2024",judul:"Pertama kali ketemu",cerita:"Jujur rasanya canggung banget, tapi malah ada hari di mana kita jadi chatan dan saling komen story."},
+    {tgl:"7 Okt 2024",judul:"Jadian 💕",cerita:"We fell in love."},
+    {tgl:"Hari ini",judul:"Masih sama kamu",cerita:"Dan masih mau sama kamu besok."}
+  ],
+  surat: [
+    {judul:"Buka pas lagi sedih 🥺",isi:["Kamu hebat, kamu kuat. Peluk jauh dari aku ya. 🤗","Nggak apa-apa kalau hari ini berat. Kamu boleh istirahat, aku di sini.","Ingat, kamu sudah melewati banyak hari sulit, dan hari ini juga pasti bisa kamu lewati.","Kalau mau cerita, aku siap dengerin. Kalau belum mau, aku temenin diam-diam.","Kamu berharga banget buat aku, apa pun yang terjadi hari ini.","Kamu nggak harus kuat setiap saat. Boleh capek, boleh nangis, aku tetap di sini.","Hari yang buruk bukan berarti kamu yang buruk. Kamu tetap luar biasa di mataku.","Aku bangga sama kamu, bahkan di hari-hari yang kamu sendiri nggak bangga.","Pelan-pelan aja ya. Nggak ada yang ngejar kamu.","Kalau dunia lagi berat, ingat ada satu orang yang selalu di pihak kamu.","Minum air dulu, tarik napas dalam-dalam, lalu peluk diri sendiri. Itu titipan peluk dari aku.","Perasaan ini nggak akan selamanya. Besok pasti lebih ringan.","Kamu sudah berusaha sebaik yang kamu bisa, dan itu sudah lebih dari cukup.","Boleh nggak baik-baik aja. Yang penting jangan sendirian, ada aku.","Aku mungkin nggak bisa menghapus sedihnya, tapi aku bisa nemenin sampai selesai.","Kamu itu orang yang aku pilih, dan aku nggak pernah menyesal.","Kalau semuanya terasa kacau, kita rapikan satu per satu bareng-bareng.","Tidur dulu kalau capek. Masalahnya bisa dilihat lagi besok dengan kepala yang lebih jernih.","Aku percaya kamu bisa melewati ini, karena aku sudah lihat betapa tangguhnya kamu.","Nangis itu bukan lemah. Itu tandanya kamu manusia yang punya hati besar.","Kamu boleh minta tolong kapan aja. Itu bukan merepotkan, itu namanya saling sayang.","Hari ini mungkin gelap, tapi kamu bukan orang yang gampang padam.","Makan yang enak, dengerin lagu favorit, dan ingat aku lagi senyum mikirin kamu.","Apa pun yang bikin kamu sedih, kamu tetap alasan aku bahagia.","Peluk erat dari jauh. Nanti kalau ketemu, aku ganti dengan peluk yang beneran."]},
+    {judul:"Buka pas lagi kangen 💭",isi:["Aku juga kangen kamu banget, sayang. 💭", "Kamu itu orang yang paling pengen aku peluk sekarang.", "Sebentar lagi kita ketemu, aku udah nggak sabar.", "Aku nggak pernah berhenti mikirin kamu hari ini.", "Kalau bisa, aku mau ada di samping kamu sekarang.", "Kamu tahu nggak, setiap hari aku makin sayang sama kamu.", "Nggak ada yang bisa gantiin kamu di hatiku.", "Aku kangen ketawa kamu, kangen cerita-cerita kamu.", "Kamu itu bagian terbaik dari hari-hariku.", "Aku selalu pilih kamu, hari ini, besok, dan seterusnya.", "Kamu sangat berarti buat aku, jangan pernah ragu soal itu.", "Aku beruntung banget punya kamu.", "Aku bangga jadi pacar kamu.", "Tiap lihat sesuatu yang bagus, yang pertama aku pikirin itu kamu.", "Kamu nggak sendirian, aku selalu ada buat kamu.", "Aku janji kita bakal punya lebih banyak waktu bareng.", "Aku sayang kamu bukan cuma pas lagi bareng, tapi setiap saat.", "Kamu rumah buatku, tempat paling nyaman buat pulang.", "Nanti pas ketemu, aku mau peluk kamu lama banget.", "Rasa kangenku sebesar rasa sayangku ke kamu.", "Kamu bikin hidupku jauh lebih berwarna.", "Aku masih sama kayak dulu, masih jatuh cinta sama kamu.", "Makasih sudah sabar nunggu aku, kamu luar biasa.", "Aku lagi senyum-senyum sendiri mikirin kamu.", "I love you, aku kangen kamu, dan aku nggak ke mana-mana. 💕"]},
+    {judul:"Buka pas lagi kesel sama aku 😤",isi:["Maaf ya. Ayo ngobrol pelan-pelan, aku sayang kamu. 🥹","Aku mungkin salah, tapi aku mau kita selesaiin bareng, bukan saling menjauh.","Tarik napas dulu. Setelah tenang, aku mau dengerin kamu sampai habis.","Kesel sama aku itu boleh, asal jangan lama-lama ya. Aku kangen kamu.","Kita tim, bukan lawan. Yuk cari jalan keluarnya berdua.","Aku sayang kamu, bahkan di saat kita lagi nggak sependapat.","Kalau aku bikin kamu kesel, tolong kasih tahu aku pelan-pelan ya, aku mau belajar.","Marah itu wajar. Yang penting setelah ini kita tetap saling pegang tangan.","Aku nggak mau menang debat, aku mau menang bareng kamu.","Maafin aku kalau tadi kata-kataku nyakitin. Aku nggak bermaksud begitu.","Kasih aku waktu buat mikir, terus kita ngobrol dengan kepala dingin ya.","Satu masalah nggak akan mengubah betapa aku menghargai kamu.","Aku salah, kamu boleh kesel. Tapi jangan diam lama-lama ya, aku nggak betah.","Ayo peluk dulu, ngomongnya belakangan.","Kamu lebih penting daripada egoku.","Kita sudah melewati banyak hal bareng, yang ini juga pasti bisa.","Aku mau dengerin versi kamu, tanpa memotong, sampai selesai.","Kalau kamu masih kesel, nggak apa-apa. Aku tunggu sampai kamu siap bicara.","Kita beda pendapat karena sama-sama peduli, ya kan?","Aku janji bakal lebih peka lain kali. Makasih sudah sabar sama aku.","Jangan tidur dalam keadaan marah ya, kita beresin bareng yuk.","Aku sayang kamu, dan itu nggak berubah hanya karena satu hari yang nggak enak.","Boleh kesel, boleh cemberut, tapi ingat aku masih orang yang sama yang sayang kamu.","Kalau aku keterlaluan, tolong tegur aku. Aku lebih baik ditegur daripada kehilangan kamu.","Ayo mulai dari awal. Hai, aku sayang kamu. Mau makan bareng?"]}
+  ],
+  pesan: ["Semangat hari ini, kamu pasti bisa! 💪","Jangan lupa minum air putih ya 💧","Kamu itu bagian favorit dari hariku 💖","Makan dulu, jangan telat 🍚","Bangga banget sama kamu hari ini ✨","Istirahat yang cukup ya, sayang 😴","Senyum dong, kamu cantik/ganteng kalau senyum 😊"]
+};
+/* =============================== */
+CONFIG.taruhan=CONFIG.taruhan.concat(["Kirim voice note nyanyi lagu anak-anak 🎤","Tirukan suara hewan pilihan lawan selama 15 detik 🐸","Panggil lawan dengan sebutan Tuan Putri atau Pangeran selama 1 jam 👑","Kirim 10 pujian untuk lawan dalam 1 menit 💬","Jadi asisten lawan selama 30 menit 🧑‍💼","Selfie dengan wajah paling lucu, kirim ke lawan 📸","Bilang kamu hebat tiga kali dengan gaya drama 🎭","Pijat bahu lawan 5 menit, atau kirim emoji pijat 20 kali 💆","Pilihin makan malam lawan minggu ini 🍕","Ceritain rahasia kecil yang belum pernah diceritain 🤫","Nari 20 detik di depan kamera 💃","Tulis puisi 4 baris untuk lawan ✍️","Ngomong pakai logat daerah selama 5 menit 🗣️","Kirim foto masa kecil yang paling lucu 🧒","Jadi supir atau pengantar lawan kali ini 🚗","Traktir camilan pilihan lawan 🍿","Bikinin minuman buat lawan ☕","Push up 10 kali sambil video call 💪","Sebutin 5 hal yang kamu syukuri dari lawan 🙏","Ganti foto profil sesuai pilihan lawan selama 1 hari 🖼️","Bacain chat paling awal kalian dengan suara dramatis 📜","Kirim emoji pilihan lawan di setiap pesan selama 1 jam 😜","Jadi pelayan restoran, layani lawan sepenuh hati 🍽️","Nyanyi lagu favorit lawan dengan nada fals 🎶","Kasih nama panggilan baru yang lucu buat lawan selama sehari 🏷️","Ceritain 3 hal yang bikin kamu deg-degan pas awal ketemu 💓","Jawab 1 pertanyaan lawan dengan jujur 🕵️","Bantu beres-beres atau cuci piring lawan 🧽","Kasih voucher gratis 1x apa pun kata lawan 🎟️","Bikin video 15 detik bilang kalau lawan itu terhebat 🎥","Ngomong dengan bahasa bayi selama 2 menit 👶","Berdiri satu kaki sambil hitung mundur dari 20 🦩","Peluk lawan 20 detik, atau kirim emoji peluk 🤗","Pilihin 3 lagu yang diputar lawan 🎧","Gambarin lawan dalam 30 detik, serius 🎨","Akui 3 kebiasaan kecil yang suka bikin lawan kesel 🙈","Pilih satu tempat dari Gacha Date dan traktir di sana 📍","Pura-pura jadi reporter dan wawancarai lawan 🎙️","Ucapin selamat pagi ke lawan dengan gaya paling lebay besok ☀️","Rekam voice note 20 detik tentang hal yang kamu kagumi dari lawan 💖","Hitung mundur 10 detik sambil joget kecil 🕺","Jadi bantal peluk lawan 5 menit 🛋️","Bikin janji kecil yang harus ditepati minggu ini 🤝","Taruh emoji hati di semua pesanmu hari ini 💗","Bilang makasih ke lawan dengan 5 cara berbeda 🙌","Besok kamu yang bangunin lawan lewat telepon 📞","Nyanyi Happy Birthday ke lawan walau bukan ulang tahun 🎂","Lawan boleh nyuruh 1 hal kecil apa pun ke kamu 🧞","Bikin selebrasi kemenangan lawan dengan suara sorakan 🎉"]);
+CONFIG.misi=CONFIG.misi.concat(["Bikin playlist berdua, masing-masing 5 lagu 🎶","Saling kirim satu foto yang bikin kamu bahagia akhir-akhir ini 📷","Main game online bareng 30 menit 🎮","Tulis surat pendek untuk dibaca pasangan nanti ✉️","Baca satu bab buku yang sama lalu diskusi 📚","Olahraga bareng lewat video call 15 menit 🏃","Bikin daftar 5 hal yang mau dilakukan bareng tahun depan 📝","Tunjukin isi tasmu, lalu tebak-tebakan 🎒","Ceritain pengalaman paling memalukan waktu kecil 😳","Nonton trailer satu film bareng lalu rencanain nonton 🍿","Saling kasih 3 tantangan kecil untuk besok 🎯","Gambar satu sama lain dan kirim hasilnya ✏️","Bikin video pendek ucapan selamat malam 🌙","Cari satu fakta unik hari ini dan bagikan 💡","Saling kirim foto makanan hari ini lalu kasih nilai 🍛","Tiru gaya bicara pasanganmu di voice note 🎭","Cari satu kafe baru untuk didatangi bareng ☕","Ngobrol 20 menit tanpa pegang hal lain 💬","Foto tempat favoritmu hari ini dan ceritain kenapa 📍","Kirim pesan semangat untuk pasanganmu besok pagi ☀️"]);
+CONFIG.truth=CONFIG.truth.concat(["Apa hal yang paling kamu banggakan dari hubungan kita?","Apa yang bikin kamu deg-degan pas awal chat dulu?","Kalau kita pindah ke kota lain, mau ke mana?","Apa ketakutan terbesar kamu soal masa depan?","Hal apa dari aku yang bikin kamu merasa dimengerti?","Lagu apa yang pengen kamu putar di hari spesial kita nanti?","Apa hal tersulit yang pernah kamu lalui, dan siapa yang bantu?","Momen apa yang pengen kamu ulang lagi bareng aku?","Makanan apa yang paling bikin kamu inget aku?","Apa hal kecil yang pengen aku lakuin lebih sering?","Kapan terakhir kali kamu nangis, dan kenapa?","Apa impian terbesar kamu yang belum pernah dibilang ke siapa-siapa?","Menurut kamu, apa kekuatan terbesar hubungan kita?","Apa yang kamu pelajari dari aku?","Kalau punya hari libur tanpa batas, kamu mau ngapain?","Apa yang kamu rasain waktu kita jadian?","Apa hal paling lucu yang pernah aku lakuin menurut kamu?","Kalau bisa balik ke satu hari bareng aku, hari yang mana?"]);
+CONFIG.dare=CONFIG.dare.concat(["Kirim foto benda yang mengingatkanmu pada dia.","Sebutin tiga hal yang kamu suka dari tampilan dia.","Bikin tebak-tebakan lucu dan buat dia ketawa.","Kirim voice note ucapan selamat malam paling manis.","Ceritain mimpi aneh yang pernah kamu alami.","Joget 15 detik di depan kamera.","Kirim stiker paling aneh yang kamu punya.","Bilang aku sayang kamu dengan bahasa lain yang kamu tahu.","Tebak makanan favorit dia, kalau salah traktir.","Tulis nama dia dengan hiasan emoji.","Bikin pose paling lucu dan minta dia tiru.","Bikin lagu singkat dari nama dia.","Kirim foto kamu waktu bangun tidur tadi pagi, kalau berani.","Pura-pura jadi pembawa berita dan laporkan kabar tentang dia.","Kasih nama panggilan baru yang manis buat dia."]);
+CONFIG.pilih=CONFIG.pilih.concat([["Teh manis","Kopi hitam"],["Kentang goreng","Nasi goreng"],["Tidur siang","Main game"],["Naik motor","Naik mobil"],["Kereta","Pesawat"],["Hotel mewah","Camping"],["Mandi air panas","Mandi air dingin"],["Baca buku","Dengerin podcast"],["Hadiah kejutan","Hadiah yang diminta"],["Foto bareng","Video bareng"],["Konser","Bioskop"],["Belanja online","Belanja langsung"],["Surat tulisan tangan","Voice note"],["Ulang tahun besar","Ulang tahun kecil"],["Rumah di kota","Rumah di pegunungan"],["Makan di luar","Masak di rumah"],["Cokelat","Permen"],["Nonton horor","Nonton komedi"],["Rencana mendadak","Rencana jauh hari"],["Bikin kejutan","Dikasih kejutan"],["Jalan kaki","Naik sepeda"],["Hujan-hujanan","Berteduh sambil ngobrol"],["Lagu lama","Lagu baru"],["Kolam renang","Pantai"],["Rebutan makanan","Saling suap"],["Baju kembaran","Baju beda gaya"],["Ngobrol sampai pagi","Tidur cepat"],["Pagi hari yang tenang","Malam hari yang ramai"],["Naik wahana ekstrem","Santai di taman"],["Ketemu tiap hari","Ketemu jarang tapi spesial"]]);
+CONFIG.hadiah=CONFIG.hadiah.concat(["Dia yang pilih menu makan malam 🍽️","Bebas satu tugas rumah hari ini 🏖️","Dibikinin teh atau kopi sesuai pilihan ☕","Dia kirim voice note nyanyi buat kamu 🎶","Kamu yang atur rencana weekend 🗓️","Satu kali menang debat tanpa protes 😎"]);
+var app=document.getElementById("app");
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function ls(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function sv(k,v){var s=JSON.stringify(v);try{localStorage.setItem(k,s)}catch(e){}if(FB&&SYNC[k]){try{ref('d/'+k).set(s)}catch(e){}}}
+function days(){var d=new Date(CONFIG.mulai),n=new Date();return Math.max(0,Math.floor((n-d)/864e5))}
+function back(){return '<button class="back" onclick="home()">← Kembali</button>'}
+
+function home(){openL=-1;
+  var t=[["gacha","🎡","Gacha Date","Bingung mau ke mana?"],["timeline","📖","Kenangan","Perjalanan kita"],["surat","💌","Surat Rahasia","Buka sesuai mood"],["game","🎮","Game Berdua","Duel, misi, roda nasib, dan lainnya"],["papan","📝","Papan Wishlist","Tempat & film"],["pesan","🌤️","Pesan Hari Ini","Ada yang baru tiap hari"],["core","⭐","Core Memory","Isi momen kita sendiri"]];
+  app.innerHTML='<h1>'+esc(CONFIG.judul)+'</h1><p class="sub">Hai '+esc(CONFIG.nama)+', hari ini lagi pengen apa?</p>'
+   +'<div class="counter">Udah bareng <b>'+days()+'</b> hari 💞</div>'
+   +'<div class="center" style="margin:-6px 0 14px"><button class="chip" id="st" onclick="go(\'connect\')">'+esc(stText())+'</button></div><div class="grid">'
+   +t.map(function(x){return '<button class="tile" onclick="go(\''+x[0]+'\')"><span class="e">'+x[1]+'</span><span class="t">'+x[2]+'</span><small>'+x[3]+'</small></button>'}).join("")+'</div>';
+  window.scrollTo(0,0);
+}
+function go(n){window[n+"View"]();window.scrollTo(0,0)}
+
+var gcat=-1;function setCat(i){gcat=i;gachaView()}
+function chips(){var ks=Object.keys(CONFIG.kupon);return '<div style="margin-bottom:12px">'+['🎲 Semua'].concat(ks).map(function(k,i){return '<button class="chip'+(gcat===i-1?' on':'')+'" onclick="setCat('+(i-1)+')">'+esc(k)+'</button>'}).join("")+'</div>'}
+function gachaView(){
+  app.innerHTML=back()+'<div class="card center"><h2>Gacha Date 🎡</h2><p class="sub">Bingung weekend mau ngapain? Pilih mood, lalu ketuk kadonya!</p>'+chips()+'<div class="gift" id="g" onclick="gacha()">🎁</div><div class="prize" id="p"></div><div id="act"></div><button class="btn" onclick="gacha()">Putar lagi</button></div>';
+}
+function gacha(){
+  var g=document.getElementById("g"),p=document.getElementById("p");
+  p.textContent="";document.getElementById("act").innerHTML="";g.classList.remove("shake");void g.offsetWidth;g.classList.add("shake");
+  setTimeout(function(){var ks=Object.keys(CONFIG.kupon),pool=(gcat<0?[].concat.apply([],ks.map(function(c){return CONFIG.kupon[c]})):CONFIG.kupon[ks[gcat]]).filter(function(x){return visitedNames().indexOf(x)<0});var act=document.getElementById("act");if(!pool.length){p.textContent="Semua tempat di kategori ini sudah kalian datengin! 🎉";return}var k=pool[Math.floor(Math.random()*pool.length)];cur=k;g.textContent="🎉";p.textContent=k;act.innerHTML='<button class="btn" style="margin:10px 0" onclick="sudahPernah()">Udah pernah ke sini ✅</button>';setTimeout(function(){g.textContent="🎁"},1500)},600);
+}
+
+function todayISO(){var t=new Date();return t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0")}
+function fmtD(d){return new Date(d+"T00:00:00").toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"})}
+function coreView(){
+  var L=ls("core",[]);
+  app.innerHTML=back()+'<h2>Core Memory ⭐</h2><p class="sub">Momen yang nggak mau kita lupain. Otomatis masuk ke Kenangan.</p><div class="card"><b>Tanggal</b><input type="date" id="cd" value="'+todayISO()+'"><b>Judul momen</b><input id="ct" placeholder="Contoh: Pertama kali nonton konser"><b>Ceritanya</b><textarea id="cc" rows="4" placeholder="Ceritain apa yang bikin momen ini spesial..."></textarea><button class="btn" onclick="simpanCore()">Simpan ke Kenangan</button></div>'+(L.length?'<h3>Core memory kita</h3>'+L.map(function(x,i){return '<div class="card"><div class="date">'+esc(fmtD(x.d))+'</div><b>'+esc(x.n)+'</b><div>'+esc(x.c)+'</div><button class="x" onclick="hapusCore('+i+')">🗑️ Hapus</button></div>'}).join(""):'');
+}
+function simpanCore(){
+  var d=document.getElementById("cd").value,n=document.getElementById("ct").value.trim(),c=document.getElementById("cc").value.trim();
+  if(!d){document.getElementById("cd").focus();return}
+  if(!n){document.getElementById("ct").focus();return}
+  var L=ls("core",[]);L.push({n:n,d:d,c:c||"Momen yang nggak akan kita lupain."});sv("core",L);timelineView();
+}
+function hapusCore(i){var L=ls("core",[]);L.splice(i,1);sv("core",L);coreView()}
+var cur="";
+function visitedNames(){return ls("visited",[]).map(function(v){return v.n})}
+function sudahPernah(){
+  var td=new Date(),iso=td.getFullYear()+"-"+String(td.getMonth()+1).padStart(2,"0")+"-"+String(td.getDate()).padStart(2,"0");
+  app.innerHTML=back()+'<div class="card"><h2>Kenangan baru 💞</h2><p class="sub">'+esc(cur)+'</p><b>Kapan kalian ke sana?</b><input type="date" id="vd" value="'+iso+'"><b>Momen yang paling berkesan</b><textarea id="vc" rows="4" placeholder="Ceritain momen serunya..."></textarea><button class="btn" onclick="simpanK()">Simpan ke Kenangan</button></div>';
+}
+function simpanK(){
+  var d=document.getElementById("vd").value,c=document.getElementById("vc").value.trim();
+  if(!d){document.getElementById("vd").focus();return}
+  var L=ls("visited",[]);L.push({n:cur,d:d,c:c||"Seru banget!"});sv("visited",L);timelineView();
+}
+function allMem(){
+  var t=CONFIG.timeline.slice(),last=t.pop();
+  var v=ls("visited",[]).map(function(x){return {d:x.d,n:"📍 "+x.n,c:x.c}}).concat(ls("core",[]).map(function(x){return {d:x.d,n:"⭐ "+x.n,c:x.c}})).sort(function(a,b){return a.d<b.d?-1:1}).map(function(x){return {tgl:new Date(x.d+"T00:00:00").toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"}),judul:x.n,cerita:x.c}});
+  return t.concat(v,[last]);
+}
+function timelineView(){
+  app.innerHTML=back()+'<h2>Kenangan Kita 📖</h2><div class="tl">'+allMem().map(function(i){return '<div class="item"><div class="date">'+esc(i.tgl)+'</div><b>'+esc(i.judul)+'</b><div>'+esc(i.cerita)+'</div></div>'}).join("")+'</div>';
+}
+
+var openL=-1;
+function tutupSurat(){openL=-1;suratView()}
+function onlyOpen(o){var r={};if(openL>=0)r[openL]=o[openL];return r}
+function suratView(){
+  var o=ls("surat",{});
+  o=onlyOpen(o);app.innerHTML=back()+'<h2>Surat Rahasia 💌</h2><p class="sub">Ketuk surat sesuai mood kamu.</p>'+CONFIG.surat.map(function(s,i){
+    return '<button class="letter'+(o[i]?' open':'')+'" onclick="bukaSurat('+i+')"><b>'+(o[i]?'💌 ':'🔒 ')+esc(s.judul)+'</b>'+(o[i]?'<div class="body">'+esc(s.isi[o[i]-1])+'</div><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:4px"><small style="color:var(--muted)">Ketuk lagi untuk pesan lain 💌</small><span class="tutup" onclick="event.stopPropagation();tutupSurat()">Tutup ✕</span></div>':'')+'</button>'}).join("");
+}
+function bukaSurat(i){var o=ls("surat",{}),n=CONFIG.surat[i].isi.length,prev=(o[i]||0)-1,k;do{k=Math.floor(Math.random()*n)}while(n>1&&k===prev);o[i]=k+1;sv("surat",o);openL=i;suratView()}
+
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function backG(){return '<button class="back" onclick="gameView()">← Menu game</button>'}
+function menuTile(f,e,t,sm){return '<button class="tile" onclick="'+f+'"><span class="e">'+e+'</span><span class="t">'+t+'</span><small>'+sm+'</small></button>'}
+var dz={};
+function el(i){return document.getElementById(i)}
+function setT(i,t){var e=el('pt'+i);if(e)e.textContent=t}
+function midT(t){var m=el('mid');if(m)m.textContent=t;return !!m}
+function duelHTML(){return backG()+'<div class="duel"><div class="pad p0" id="pd0"><div id="pt0"></div></div><div class="mid" id="mid"></div><div class="pad p1" id="pd1"><div id="pt1"></div></div></div>'}
+function bindPads(){[0,1].forEach(function(i){el('pd'+i).onpointerdown=function(ev){ev.preventDefault();padTap(i)}})}
+function stopDz(){clearInterval(dz.iv);clearTimeout(dz.to)}
+function skor(){var s=ls('skor',{});return {w:s.w||[0,0],xp:s.xp||0,done:s.done||0}}
+function tapStart(){
+  stopDz();var my=dz={m:'tap',n:[0,0],on:false},G=CONFIG.pemain,c=3;
+  app.innerHTML=duelHTML();bindPads();setT(0,G[0]);setT(1,G[1]);
+  (function tick(){
+    if(dz!==my||!midT(c>0?String(c):'GO!'))return;
+    if(c>0){c--;setTimeout(tick,700);return}
+    my.on=true;my.t0=Date.now();setT(0,'0');setT(1,'0');
+    my.iv=setInterval(function(){
+      if(dz!==my||!el('mid')){clearInterval(my.iv);return}
+      var r=10-(Date.now()-my.t0)/1000;
+      if(r<=0){clearInterval(my.iv);my.on=false;var n=my.n;duelEnd(n[0]>n[1]?0:n[1]>n[0]?1:-1)}
+      else midT('⏱ '+r.toFixed(1))
+    },100);
+  })();
+}
+function reakStart(){stopDz();dz={m:'reak',w:[0,0],r:0,on:false,go:false};reakRound()}
+function reakRound(){
+  var G=CONFIG.pemain,my=dz;app.innerHTML=duelHTML();bindPads();
+  setT(0,G[0]+': tunggu hijau 🚦');setT(1,G[1]+': tunggu hijau 🚦');
+  midT('Ronde '+(my.r+1)+'  •  '+G[0]+' '+my.w[0]+' - '+my.w[1]+' '+G[1]);
+  my.on=true;my.go=false;
+  my.to=setTimeout(function(){
+    if(dz!==my||!el('pd0'))return;
+    my.go=true;my.t=Date.now();
+    [0,1].forEach(function(i){el('pd'+i).style.background='#3ecf6e';setT(i,'TAP! 👆')});
+  },2000+Math.random()*3000);
+}
+function padTap(i){
+  if(dz.m==='tap'){if(dz.on){dz.n[i]++;setT(i,String(dz.n[i]))}}
+  else if(dz.m==='reak'&&dz.on){
+    var my=dz,G=CONFIG.pemain,w=my.go?i:1-i;
+    my.on=false;clearTimeout(my.to);my.w[w]++;
+    midT(my.go?G[i]+' paling cepat! ('+(Date.now()-my.t)+' ms)':G[i]+' kecepetan, foul! 😆');
+    setTimeout(function(){if(dz!==my||!el('mid'))return;if(my.w[w]>=2)duelEnd(w);else{my.r++;reakRound()}},1400);
+  }
+}
+function gameView(){
+  app.innerHTML=back()+'<h2>Game Berdua 🎮</h2><p class="sub">Pilih mau main apa hari ini.</p>'+modeChips()+'<div class="grid">'
+   +menuTile('duelMenu()','⚡','Duel Cepat','4 duel, satu HP dua jempol')
+   +menuTile('misiView()','🎯','Misi Berdua','Selesaikan bareng, naik level')
+   +menuTile('rodaView()','🎡','Roda Nasib','Hukuman atau hadiah acak')
+   +menuTile('skorView()','🏆','Papan Skor','Siapa yang unggul?')
+   +menuTile('duelGo(\'pilih\')','🔮','Tebak Pilihan','Tebak pilihan pasangan')
+   +menuTile('tdView()','🎲','Truth or Dare','Tanya dan tantangan')+'</div>';
+}
+function duelMenu(){
+  app.innerHTML=backG()+'<h2>Duel Cepat ⚡</h2><p class="sub">Yang kalah langsung kena hukuman acak!</p>'+modeChips()+'<div class="grid" style="grid-template-columns:1fr">'+menuTile('duelGo(\'tap\')','👆','Tap Race','Paling banyak ngetuk dalam 10 detik')+menuTile('duelGo(\'reak\')','🚦','Reaksi','Tap duluan begitu layar hijau')+menuTile('duelGo(\'suit\')','✊','Suit Berdua','Batu gunting kertas, menang 2 ronde')+menuTile('duelGo(\'angka\')','🔢','Tebak Angka','Siapa yang menebak angka rahasia')+'</div>';
+}
+var SE=['✊','✋','✌️'];
+function suitStart(){stopDz();dz={m:'suit',w:[0,0],r:0,c:[null,null]};suitRound()}
+function suitRound(){
+  var G=CONFIG.pemain;dz.c=[null,null];
+  function pad(i){return '<div style="text-align:center;width:100%"><div style="margin-bottom:8px">'+esc(G[i])+', pilih!</div>'+SE.map(function(e,k){return '<button class="sb" onclick="suitPick('+i+','+k+')">'+e+'</button>'}).join('')+'</div>'}
+  app.innerHTML=backG()+'<div class="duel"><div class="pad p0" id="pd0">'+pad(0)+'</div><div class="mid" id="mid"></div><div class="pad p1" id="pd1">'+pad(1)+'</div></div>';
+  midT(G[0]+' '+dz.w[0]+' - '+dz.w[1]+' '+G[1]);
+}
+function suitPick(i,k){
+  if(dz.m!=='suit'||dz.c[i]!==null)return;
+  var my=dz,G=CONFIG.pemain;my.c[i]=k;el('pd'+i).textContent='Sudah memilih ✅';
+  if(my.c[0]===null||my.c[1]===null)return;
+  var a=my.c[0],b=my.c[1],w=a===b?-1:((a-b+3)%3===1?0:1);
+  if(w>=0)my.w[w]++;
+  midT(SE[a]+' lawan '+SE[b]+'  '+(w<0?'Seri, ulang!':G[w]+' menang ronde ini!'));
+  setTimeout(function(){if(dz!==my||!el('mid'))return;if(w>=0&&my.w[w]>=2)duelEnd(w);else suitRound()},1800);
+}
+function angkaStart(){stopDz();dz={m:'angka',s:1+Math.floor(Math.random()*100),t:0,lo:1,hi:100};angkaView('')}
+function angkaView(msg){
+  var G=CONFIG.pemain;
+  app.innerHTML=backG()+'<h2>Tebak Angka 🔢</h2><p class="sub">Angka rahasia ada di antara '+dz.lo+' dan '+dz.hi+'. Yang menebak tepat menang!</p><div class="card center">'+(msg?'<p>'+esc(msg)+'</p>':'')+'<p>Giliran <b>'+esc(G[dz.t])+'</b></p><input type="number" id="ang" inputmode="numeric" placeholder="Tebakanmu"><button class="btn" onclick="angkaTebak()">Tebak</button></div>';
+}
+function angkaTebak(){
+  var v=parseInt(el('ang').value,10);
+  if(isNaN(v)||v<dz.lo||v>dz.hi){el('ang').focus();return}
+  var G=CONFIG.pemain;
+  if(v===dz.s){duelEnd(dz.t);return}
+  if(v<dz.s)dz.lo=v+1;else dz.hi=v-1;
+  var msg=G[dz.t]+' menebak '+v+': '+(v<dz.s?'terlalu kecil':'terlalu besar');
+  dz.t=1-dz.t;angkaView(msg);
+}
+function duelEnd(w){
+  var G=CONFIG.pemain,S=skor();
+  if(w>=0){S.w[w]++;sv('skor',S)}
+  var rt={tap:'tapStart()',reak:'reakStart()',suit:'suitStart()',angka:'angkaStart()'}[dz.m];
+  var n=dz.m==='tap'?'<p class="sub">'+dz.n[0]+' lawan '+dz.n[1]+' ketukan</p>':'';
+  app.innerHTML=backG()+'<div class="card center"><h2>'+(w<0?'Seri! 🤝':esc(G[w])+' menang! 🏆')+'</h2>'+n+(w<0?'<p>Kalian sama kuat, ulang aja!</p>':'<p>'+esc(G[1-w])+' kena hukuman:</p><p class="big" id="tr" style="min-height:4.5rem">🎰</p>')+'<button class="btn" onclick="'+rt+'">Main lagi</button></div>';
+  if(w>=0)roll('tr',CONFIG.taruhan);
+}
+function roll(id,list){var n=0,iv=setInterval(function(){var e=el(id);if(!e){clearInterval(iv);return}e.textContent=list[Math.floor(Math.random()*list.length)];if(++n>=14)clearInterval(iv)},90)}
+function rodaView(){
+  app.innerHTML=backG()+'<h2>Roda Nasib 🎡</h2><p class="sub">Putar dan lihat apa yang kena. Bisa hukuman, bisa hadiah!</p><div class="card center"><p class="big" id="rd" style="min-height:4.5rem">Putar yuk!</p><button class="btn" onclick="roll(\'rd\',CONFIG.taruhan.concat(CONFIG.hadiah))">Putar 🎡</button></div>';
+}
+function lvl(xp){return Math.floor(xp/50)+1}
+function misiBaru(){var m=ls('misiNow',-1),n;do{n=Math.floor(Math.random()*CONFIG.misi.length)}while(CONFIG.misi.length>1&&n===m);sv('misiNow',n);return n}
+function misiView(){
+  var S=skor(),m=ls('misiNow',-1);
+  if(m<0||m>=CONFIG.misi.length)m=misiBaru();
+  var pr=(S.xp%50)/50*100;
+  app.innerHTML=backG()+'<h2>Misi Berdua 🎯</h2><div class="card"><b>Level '+lvl(S.xp)+'</b> <span class="sub">• '+S.xp+' XP • '+S.done+' misi selesai</span><div style="background:var(--accent2);border-radius:999px;height:12px;margin-top:8px"><div style="background:var(--accent);height:12px;border-radius:999px;width:'+pr+'%"></div></div></div><div class="card center"><p class="sub">Misi kalian sekarang</p><p class="big">'+esc(CONFIG.misi[m])+'</p><button class="btn" onclick="misiDone()">Selesai! ✅</button> <button class="chip" onclick="misiGanti()">Ganti misi 🔄</button></div>';
+}
+function misiGanti(){misiBaru();misiView()}
+function misiDone(){
+  CURV=null;
+  var S=skor(),old=lvl(S.xp);S.xp+=20;S.done++;sv('skor',S);misiBaru();
+  var nl=lvl(S.xp),h=nl>old?'<h2>Naik ke Level '+nl+'! 🎉</h2><p>Hadiah kalian:</p><p class="big">'+esc(CONFIG.hadiah[(nl-2)%CONFIG.hadiah.length])+'</p>':'<h2>Misi selesai! 🎉</h2><p>+20 XP</p>';
+  app.innerHTML=backG()+'<div class="card center">'+h+'<button class="btn" onclick="misiView()">Misi berikutnya</button></div>';
+}
+function skorView(){
+  var S=skor(),G=CONFIG.pemain;
+  app.innerHTML=backG()+'<h2>Papan Skor 🏆</h2><div class="card center"><p class="sub">Menang Duel Cepat</p><p class="big">'+esc(G[0])+' '+S.w[0]+'  :  '+S.w[1]+' '+esc(G[1])+'</p></div><div class="card center"><p class="sub">Misi berdua</p><p class="big">Level '+lvl(S.xp)+' • '+S.xp+' XP</p><p class="sub">'+S.done+' misi selesai</p></div>';
+}
+var pg={};
+function pilihStart(){pg={q:shuf(CONFIG.pilih).slice(0,10),i:0,s:0,ph:0};pilihStep()}
+function pilihStep(){
+  var G=CONFIG.pemain,p=pg,r=p.i;
+  if(r>=p.q.length){
+    var best=ls("bestK",0);if(p.s>best){best=p.s;sv("bestK",best)}
+    var m=p.s>=8?"Kompak banget, kalian emang cocok! 💕":p.s>=5?"Lumayan kompak, masih banyak yang bisa dicari tahu 😆":"Masih banyak yang harus saling kenalan nih 😂";
+    app.innerHTML=backG()+'<div class="card center"><h2>Skor kekompakan: '+p.s+' / '+p.q.length+'</h2><p>'+m+'</p><p class="sub">Rekor terbaik: '+best+'</p><button class="btn" onclick="pilihStart()">Main lagi</button></div>';return;
+  }
+  var c=G[r%2],t=G[1-r%2],q=p.q[r],head='<p class="sub">Ronde '+(r+1)+' dari '+p.q.length+' • Kompak: '+p.s+'</p>';
+  function opts(fn){return q.map(function(x,k){return '<button class="opt" onclick="'+fn+'('+k+')">'+esc(x)+'</button>'}).join("")}
+  if(p.ph==0)app.innerHTML=backG()+head+'<div class="card center"><b>Giliran '+esc(c)+' memilih</b><p class="sub">'+esc(t)+' jangan ngintip ya 🙈</p></div>'+opts("pilihA");
+  else if(p.ph==1)app.innerHTML=backG()+head+'<div class="card center"><h2>Oper HP ke '+esc(t)+' 📱</h2><p class="sub">Pilihan '+esc(c)+' sudah disimpan.</p><button class="btn" onclick="pg.ph=2;pilihStep()">Aku '+esc(t)+', lanjut</button></div>';
+  else if(p.ph==2)app.innerHTML=backG()+head+'<div class="card center"><b>'+esc(t)+', tebak pilihan '+esc(c)+'!</b></div>'+opts("pilihG");
+  else{var ok=p.g===p.a;app.innerHTML=backG()+head+'<div class="card center"><p>'+esc(c)+' memilih: <b>'+esc(q[p.a])+'</b></p><p>'+esc(t)+' menebak: <b>'+esc(q[p.g])+'</b></p><h2>'+(ok?"Cocok! 💕":"Belum cocok 😆")+'</h2><button class="btn" onclick="pilihNext()">Lanjut</button></div>'}
+}
+function pilihA(k){pg.a=k;pg.ph=1;pilihStep()}
+function pilihG(k){pg.g=k;if(k===pg.a)pg.s++;pg.ph=3;pilihStep()}
+function pilihNext(){pg.i++;pg.ph=0;pilihStep()}
+var tdLast="";
+function tdView(){app.innerHTML=backG()+'<h2>Truth or Dare 🎲</h2><p class="sub">Dimainkan sambil telepon atau ketemu langsung. Gantian ya!</p><div class="card center"><div class="prize" id="tdp" style="min-height:5rem">Pilih Truth atau Dare</div></div><div class="row" style="justify-content:center"><button class="btn" onclick="tdPick(0)">Truth 💬</button><button class="btn" onclick="tdPick(1)">Dare 💘</button></div>'}
+function tdPick(k){var a=k?CONFIG.dare:CONFIG.truth,t;do{t=a[Math.floor(Math.random()*a.length)]}while(a.length>1&&t===tdLast);tdLast=t;document.getElementById("tdp").textContent=(k?"💘 Dare: ":"💬 Truth: ")+t}
+
+function papanView(){
+  var L=ls("papan",[]);
+  app.innerHTML=back()+'<h2>Papan Wishlist 📝</h2><div class="card"><select id="kat"><option>🍜 Makan</option><option>✈️ Jalan-jalan</option><option>🎬 Nonton</option><option>✨ Lainnya</option></select><div class="row"><input id="isi" placeholder="Mau ke mana / nonton apa?"><button class="btn" onclick="tambah()">+</button></div></div><div class="card" id="list">'+(L.length?L.map(function(x,i){return '<div class="todo'+(x.d?' done':'')+'"><input type="checkbox" style="width:auto;margin:0" '+(x.d?'checked':'')+' onchange="cek('+i+')"><div class="tx">'+esc(x.k)+' '+esc(x.t)+'</div><button class="x" onclick="hapus('+i+')">🗑️</button></div>'}).join(""):'<p class="sub">Belum ada isi. Tambah yang pertama!</p>')+'</div>';
+}
+function tambah(){var t=document.getElementById("isi").value.trim();if(!t)return;var L=ls("papan",[]);L.push({k:document.getElementById("kat").value,t:t,d:false});sv("papan",L);papanView()}
+var wi=-1;
+function cek(i){
+  CURV=null;
+  var L=ls("papan",[]),x=L[i];
+  if(x.d){x.d=false;var V=ls("visited",[]).filter(function(v){return !x.id||v.wid!==x.id});sv("visited",V);sv("papan",L);papanView();return}
+  wi=i;
+  app.innerHTML='<button class="back" onclick="papanView()">← Batal</button><div class="card"><h2>Kesampaian! 🎉</h2><p class="sub">'+esc(x.k)+' '+esc(x.t)+'</p><b>Kapan kalian melakukannya?</b><input type="date" id="wd" value="'+todayISO()+'"><b>Momen yang paling berkesan</b><textarea id="wc" rows="4" placeholder="Ceritain serunya..."></textarea><button class="btn" onclick="simpanW()">Simpan ke Kenangan</button></div>';
+}
+function simpanW(){
+  var d=document.getElementById("wd").value,c=document.getElementById("wc").value.trim();
+  if(!d){document.getElementById("wd").focus();return}
+  var L=ls("papan",[]),x=L[wi];x.d=true;x.id=x.id||("w"+Date.now());
+  var V=ls("visited",[]);V.push({n:x.t,d:d,c:c||"Akhirnya kesampaian!",wid:x.id});
+  sv("papan",L);sv("visited",V);timelineView();
+}
+function hapus(i){var L=ls("papan",[]);L.splice(i,1);sv("papan",L);papanView()}
+
+function pesanView(){
+  var n=new Date(),idx=(n.getFullYear()*366+n.getMonth()*31+n.getDate())%CONFIG.pesan.length;
+  app.innerHTML=back()+'<div class="card center"><h2>Pesan Hari Ini 🌤️</h2><p class="big">'+esc(CONFIG.pesan[idx])+'</p><p class="sub">Besok ada pesan baru lagi ya 💕</p></div>';
+}
+
+/* ================================================================
+   HUBUNGAN 2 HP (Firebase Realtime Database)
+   ================================================================ */
+var ROOM='',ME=-1,FB=null,OFF=0,ONL=false,GD={},OG=null,lastSid=0,M2=true,CURV=null,CURM='gameView',pickedMe=-1;
+try{ROOM=localStorage.getItem('pk_room')||'';var _m=parseInt(localStorage.getItem('pk_me'),10);ME=isNaN(_m)?-1:_m;pickedMe=ME}catch(e){}
+var SYNC={core:1,visited:1,papan:1,skor:1,misiNow:1,bestK:1};
+var GNAME={tap:'Tap Race',reak:'Reaksi',suit:'Suit Berdua',angka:'Tebak Angka',pilih:'Tebak Pilihan'};
+
+function now(){return Date.now()+OFF}
+function ref(p){return FB.ref('pojokkita/'+ROOM+'/'+p)}
+function onlineReady(){return !!FB&&ME>=0}
+function OPN(){return CONFIG.pemain[1-ME]}
+function stText(){
+  if(!CONFIG.firebaseUrl)return '⚪ 2 HP belum diaktifkan';
+  if(!ROOM||ME<0)return '⚪ Belum terhubung, ketuk untuk atur';
+  if(typeof firebase==='undefined')return '🔴 Gagal memuat Firebase (cek internet)';
+  return (ONL?'🟢 Tersambung':'🟡 Menyambungkan…')+' sebagai '+CONFIG.pemain[ME];
+}
+function paintStatus(){var e=el('st');if(e)e.textContent=stText();var c=el('cst');if(c)c.textContent=stText()}
+function isTyping(){var a=document.activeElement;return !!a&&(a.tagName==='TEXTAREA'||a.tagName==='SELECT'||(a.tagName==='INPUT'&&a.type!=='checkbox'))}
+function refreshView(){if(CURV&&!OG&&!isTyping())window[CURV]()}
+
+function connect(){
+  if(FB||!ROOM||ME<0||!CONFIG.firebaseUrl||typeof firebase==='undefined')return;
+  try{
+    if(!firebase.apps.length)firebase.initializeApp({databaseURL:CONFIG.firebaseUrl});
+    FB=firebase.database();
+  }catch(e){FB=null;return}
+  FB.ref('.info/serverTimeOffset').on('value',function(s){OFF=s.val()||0});
+  FB.ref('.info/connected').on('value',function(s){ONL=!!s.val();paintStatus()});
+  ref('d').on('value',onData);
+  ref('g').on('value',function(s){GD=s.val()||{};gUpdate()});
+}
+function mergeV(k,l,r){
+  if(l==null)return r;
+  if(Array.isArray(r)&&Array.isArray(l)){var seen={},out=[];r.concat(l).forEach(function(x){var s=JSON.stringify(x);if(!seen[s]){seen[s]=1;out.push(x)}});return out}
+  if(k==='skor')return {w:[Math.max((l.w||[0,0])[0],(r.w||[0,0])[0]),Math.max((l.w||[0,0])[1],(r.w||[0,0])[1])],xp:Math.max(l.xp||0,r.xp||0),done:Math.max(l.done||0,r.done||0)};
+  if(k==='bestK')return Math.max(l,r);
+  return r;
+}
+function onData(snap){
+  var d=snap.val()||{},merged=false,chg=false;
+  try{merged=!!localStorage.getItem('pk_merged')}catch(e){}
+  Object.keys(SYNC).forEach(function(k){
+    var rs=d[k],lv=ls(k,null);
+    if(rs==null){if(lv!=null)sv(k,lv);return}
+    var rv;try{rv=JSON.parse(rs)}catch(e){return}
+    if(!merged){
+      var ms=JSON.stringify(mergeV(k,lv,rv));
+      try{localStorage.setItem(k,ms)}catch(e){}
+      if(ms!==rs)ref('d/'+k).set(ms);
+      chg=true;
+    }else if(localStorage.getItem(k)!==rs){
+      try{localStorage.setItem(k,rs)}catch(e){}
+      chg=true;
+    }
+  });
+  if(!merged){try{localStorage.setItem('pk_merged','1')}catch(e){}}
+  if(chg)refreshView();
+}
+
+function connectView(){
+  var P=CONFIG.pemain;
+  if(!CONFIG.firebaseUrl){
+    app.innerHTML=back()+'<h2>Hubungkan 2 HP 🔗</h2><div class="card"><p>Fitur ini belum diaktifkan. Isi <b>firebaseUrl</b> di bagian CONFIG pada file ini (di atas, dekat <b>pemain</b>), lalu buka ulang.</p></div>';
+    return;
+  }
+  app.innerHTML=back()+'<h2>Hubungkan 2 HP 🔗</h2><p class="sub">Masukkan kode yang sama di kedua HP, lalu pilih kamu siapa.</p><div class="card"><b>Kode ruangan</b><input id="rm" placeholder="Contoh: meii-rifky-2410" value="'+esc(ROOM)+'" autocapitalize="none" autocomplete="off"><b>Kamu siapa?</b><div style="margin:6px 0 10px"><button class="chip'+(pickedMe===0?' on':'')+'" onclick="pickMe(0)">'+esc(P[0])+'</button><button class="chip'+(pickedMe===1?' on':'')+'" onclick="pickMe(1)">'+esc(P[1])+'</button></div><button class="btn" onclick="saveConn()">Hubungkan</button><p class="sub" id="cst" style="margin-top:12px">'+esc(stText())+'</p></div>'+(ROOM?'<div class="center"><button class="chip" onclick="putus()">Putuskan koneksi</button></div>':'')+'<p class="sub">Pakai kode yang sulit ditebak. Siapa pun yang tahu kodenya bisa melihat data kalian.</p>';
+}
+function pickMe(i){var rm=el('rm'),v=rm?rm.value:'';pickedMe=i;connectView();el('rm').value=v}
+function saveConn(){
+  var r=el('rm').value.trim().toLowerCase().replace(/[^a-z0-9_-]/g,'');
+  if(r.length<6){el('cst').textContent='Kode minimal 6 karakter (huruf, angka, strip).';return}
+  if(pickedMe<0){el('cst').textContent='Pilih dulu kamu siapa.';return}
+  try{if(r!==ROOM)localStorage.removeItem('pk_merged');localStorage.setItem('pk_room',r);localStorage.setItem('pk_me',String(pickedMe))}catch(e){}
+  location.reload();
+}
+function putus(){try{localStorage.removeItem('pk_room');localStorage.removeItem('pk_me');localStorage.removeItem('pk_merged')}catch(e){}location.reload()}
+
+/* ---------- Game 2 HP ---------- */
+function modeChips(){
+  if(!onlineReady())return '';
+  return '<div style="margin-bottom:12px"><button class="chip'+(M2?' on':'')+'" onclick="setM2(1)">📱 2 HP (online)</button><button class="chip'+(M2?'':' on')+'" onclick="setM2(0)">👆 1 HP</button></div>';
+}
+function setM2(v){M2=!!v;window[CURM]()}
+function duelGo(m){
+  if(onlineReady()&&M2)gStart(m);
+  else({tap:tapStart,reak:reakStart,suit:suitStart,angka:angkaStart,pilih:pilihStart})[m]();
+}
+function gS(){return (GD.s&&OG&&GD.s[OG.sid])||{}}
+function gP(i){return gS()['p'+i]||{}}
+function gW(path,val){if(OG&&FB)ref('g/s/'+OG.sid+'/p'+ME+'/'+path).set(val)}
+function bothReady(){return !!(gP(0).r&&gP(1).r)}
+function T0(){return Math.max(gP(0).r,gP(1).r)+3500}
+function bk(){return '<button class="back" onclick="gameView()">← Menu game</button>'}
+function scr(key,html,after){
+  if(OG.key===key)return false;
+  OG.key=key;app.innerHTML=html;window.scrollTo(0,0);
+  if(after)after();
+  return true;
+}
+function lobby(){scr('lobby',bk()+'<div class="card center"><h2>Menunggu '+esc(OPN())+' 📱</h2><p class="sub">'+esc(GNAME[OG.m])+' dimulai begitu '+esc(OPN())+' menekan Gabung di HP-nya.</p></div>')}
+function gStart(m){
+  if(!onlineReady())return;
+  var x={};
+  if(m==='reak')x.d=[0,1,2,3,4].map(function(){return 1500+Math.floor(Math.random()*2000)}).join(',');
+  if(m==='angka')x.s=1+Math.floor(Math.random()*100);
+  if(m==='pilih')x.q=shuf(CONFIG.pilih.map(function(_,i){return i})).slice(0,10).join(',');
+  var c=Object.assign({m:m,sid:now(),by:ME},x);
+  ref('g/s').remove();ref('g/cur').set(c);
+  joinG(c);
+}
+function joinG(c){
+  gLeave();CURV=null;lastSid=c.sid;
+  OG={sid:c.sid,m:c.m,c:c,key:'',over:false,r:0,cnt:0,fin:false};
+  OG.render={tap:rTap,reak:rReak,suit:rSuit,angka:rAngka,pilih:rPilih}[c.m];
+  gW('r',firebase.database.ServerValue.TIMESTAMP);
+  if(c.m==='tap'||c.m==='reak')OG.iv=setInterval(function(){if(OG&&!OG.over&&GD.cur&&GD.cur.sid===OG.sid)OG.render()},100);
+  OG.render();
+  invUpdate();
+}
+function gLeave(){if(OG){lastSid=OG.sid;clearInterval(OG.iv);OG=null}}
+function gAgain(){var m=OG.m;gStart(m)}
+function gUpdate(){
+  invUpdate();
+  if(!OG||OG.over)return;
+  if(!GD.cur||GD.cur.sid!==OG.sid)return;
+  OG.render();
+}
+function invUpdate(){
+  var b=el('inv');if(!b)return;
+  var c=GD.cur;
+  var show=!!(onlineReady()&&c&&c.by!==ME&&c.sid!==lastSid&&(!OG||OG.sid!==c.sid)&&now()-c.sid<45000);
+  if(!show){b.className='hidden';return}
+  b.className='';
+  b.innerHTML='<span>'+esc(CONFIG.pemain[c.by])+' ngajak main '+esc(GNAME[c.m]||'game')+'! 🎮</span><span><button style="background:#fff;color:var(--accent)" onclick="joinInv()">Gabung</button> <button style="background:transparent;color:#fff" onclick="dismissInv()">✕</button></span>';
+}
+function joinInv(){var c=GD.cur;if(c)joinG(c)}
+function dismissInv(){if(GD.cur)lastSid=GD.cur.sid;invUpdate()}
+function rollTo(id,list,seed){
+  var n=0,iv=setInterval(function(){var e=el(id);if(!e){clearInterval(iv);return}n++;e.textContent=n>=14?list[seed%list.length]:list[Math.floor(Math.random()*list.length)];if(n>=14)clearInterval(iv)},90);
+}
+function gEnd(w,extra){
+  if(OG.over)return;
+  OG.over=true;OG.key='end';clearInterval(OG.iv);
+  var sid=OG.sid,P=CONFIG.pemain;
+  if(w>=0)ref('g/s/'+sid+'/scored').transaction(function(v){return v?undefined:1},function(err,ok){if(ok){var S=skor();S.w[w]++;sv('skor',S)}});
+  app.innerHTML=bk()+'<div class="card center"><h2>'+(w<0?'Seri! 🤝':esc(P[w])+' menang! 🏆')+'</h2>'+(extra||'')+(w<0?'<p>Kalian sama kuat, ulang aja!</p>':'<p>'+esc(P[1-w])+' kena hukuman:</p><p class="big" id="tr" style="min-height:4.5rem">🎰</p>')+'<button class="btn" onclick="gAgain()">Main lagi</button></div>';
+  window.scrollTo(0,0);
+  if(w>=0)rollTo('tr',CONFIG.taruhan,sid);
+}
+
+/* Tap Race */
+function rTap(){
+  if(!bothReady()){lobby();return}
+  var n=now(),t0=T0(),op=1-ME,P=CONFIG.pemain;
+  if(n>=t0+10000){
+    if(!OG.fin){OG.fin=true;gW('n',OG.cnt);gW('f',1)}
+    if((gP(0).f&&gP(1).f)||n>=t0+13000){var a=gP(0).n||0,b=gP(1).n||0;gEnd(a>b?0:b>a?1:-1,'<p class="sub">'+a+' lawan '+b+' ketukan</p>');return}
+  }
+  scr('tap',bk()+'<div class="duel"><div class="mid" id="mid"></div><div class="pad" id="pad" style="background:'+(ME?'#5b8cff':'#ff6b9d')+'"><div id="pt"></div></div><div class="mid" id="opp"></div></div>',function(){el('pad').onpointerdown=function(ev){ev.preventDefault();tapHit()}});
+  el('pt').textContent=n<t0?P[ME]:String(OG.cnt);
+  el('mid').textContent=n<t0?String(Math.min(3,Math.ceil((t0-n)/1000))):n<t0+10000?'⏱ '+((t0+10000-n)/1000).toFixed(1):'Menghitung…';
+  el('opp').textContent=(n>=t0&&n<t0+10000)?P[op]+': '+(gP(op).n||0):'';
+}
+function tapHit(){
+  if(!OG||OG.m!=='tap'||OG.over||!bothReady())return;
+  var n=now(),t0=T0();
+  if(n>=t0&&n<t0+10000){OG.cnt++;el('pt').textContent=OG.cnt;gW('n',OG.cnt)}
+}
+
+/* Reaksi */
+function reakCalc(n){
+  var t0=T0(),D=OG.c.d.split(',').map(Number),w=[0,0],info=[],r=0;
+  for(;r<5;r++){
+    var S=t0+r*7000,go=S+D[r],a=gP(0)['t'+r],b=gP(1)['t'+r];
+    var fa=a!==undefined&&a<go,fb=b!==undefined&&b<go;
+    var fin=(a!==undefined&&b!==undefined)||fa||fb||n>=S+6500;
+    if(!fin)break;
+    var va=(a!==undefined&&!fa)?a:null,vb=(b!==undefined&&!fb)?b:null,x;
+    if(fa&&fb)x=-1;else if(fa)x=1;else if(fb)x=0;
+    else if(va!==null&&vb!==null)x=va<vb?0:vb<va?1:-1;
+    else if(va!==null)x=0;else if(vb!==null)x=1;else x=-1;
+    info.push({x:x,ms:x===0?va-go:x===1?vb-go:0,foul:fa||fb});
+    if(x>=0)w[x]++;
+    if(w[0]>=2||w[1]>=2){r++;break}
+  }
+  return {t0:t0,D:D,w:w,info:info,r:r,over:w[0]>=2||w[1]>=2||r>=5};
+}
+function rReak(){
+  if(!bothReady()){lobby();return}
+  var n=now(),P=CONFIG.pemain,c=reakCalc(n);
+  if(c.over){var w=c.w[0]>c.w[1]?0:c.w[1]>c.w[0]?1:-1;gEnd(w,'<p class="sub">Skor '+c.w[0]+' - '+c.w[1]+'</p>');return}
+  scr('reak',bk()+'<div class="duel"><div class="mid" id="mid"></div><div class="pad" id="pad" style="background:#9a7384"><div id="pt"></div></div><div class="mid" id="opp"></div></div>',function(){el('pad').onpointerdown=function(ev){ev.preventDefault();reakHit()}});
+  var r=c.r,S=c.t0+r*7000,go=S+c.D[r],mine=OG['t'+r]!==undefined||gP(ME)['t'+r]!==undefined,pad=el('pad'),txt,col;
+  if(n<c.t0){txt=String(Math.min(3,Math.ceil((c.t0-n)/1000)));col='#9a7384'}
+  else if(n<S){txt='Siap-siap…';col='#9a7384'}
+  else if(mine){txt='Menunggu '+P[1-ME]+'…';col='#9a7384'}
+  else if(n<go){txt='Tunggu hijau 🚦';col='#e05555'}
+  else{txt='TAP! 👆';col='#3ecf6e'}
+  pad.style.background=col;
+  el('pt').textContent=txt;
+  el('mid').textContent='Ronde '+(r+1)+'  •  '+P[0]+' '+c.w[0]+' - '+c.w[1]+' '+P[1];
+  var li=c.info[r-1];
+  el('opp').textContent=li?(li.x<0?'Ronde tadi: seri':'Ronde tadi: '+P[li.x]+' menang'+(li.foul?' (lawan foul 😆)':' ('+li.ms+' ms)')):'';
+}
+function reakHit(){
+  if(!OG||OG.m!=='reak'||OG.over||!bothReady())return;
+  var n=now(),c=reakCalc(n),r=c.r;
+  if(c.over||n<c.t0+r*7000)return;
+  if(OG['t'+r]!==undefined||gP(ME)['t'+r]!==undefined)return;
+  OG['t'+r]=n;gW('t'+r,n);OG.render();
+}
+
+/* Suit */
+function rSuit(){
+  if(!bothReady()){lobby();return}
+  var P=CONFIG.pemain,w=[0,0],r=0,last='';
+  while(true){
+    var a=gP(0)['c'+r],b=gP(1)['c'+r];
+    if(a===undefined||b===undefined)break;
+    var x=a===b?-1:((a-b+3)%3===1?0:1);
+    if(x>=0)w[x]++;
+    last=SE[a]+' lawan '+SE[b]+': '+(x<0?'Seri, ulang!':P[x]+' menang ronde ini!');
+    r++;
+    if(w[0]>=2||w[1]>=2)break;
+  }
+  if(w[0]>=2||w[1]>=2){gEnd(w[0]>=2?0:1,'<p class="sub">'+esc(last)+'</p>');return}
+  var mine=gP(ME)['c'+r],h='<div class="mid center">'+esc(P[0])+' '+w[0]+' - '+w[1]+' '+esc(P[1])+'</div>'+(last?'<p class="sub">Ronde tadi: '+esc(last)+'</p>':'');
+  if(mine===undefined)scr('s'+r+'p',bk()+h+'<div class="card center"><b>'+esc(P[ME])+', pilih!</b><div style="margin-top:10px">'+SE.map(function(e,k){return '<button class="sb" onclick="sPick('+r+','+k+')">'+e+'</button>'}).join('')+'</div></div>');
+  else scr('s'+r+'w',bk()+h+'<div class="card center"><h2>Sudah memilih ✅</h2><p class="sub">Menunggu '+esc(P[1-ME])+'…</p></div>');
+}
+function sPick(r,k){if(OG&&OG.m==='suit'&&gP(ME)['c'+r]===undefined)gW('c'+r,k)}
+
+/* Tebak Angka */
+function rAngka(){
+  if(!bothReady()){lobby();return}
+  var P=CONFIG.pemain,s=OG.c.s,lo=1,hi=100,k=0,msg='';
+  while(true){
+    var who=k%2,g=gP(who)['g'+k];
+    if(g===undefined)break;
+    if(g===s){gEnd(who,'<p class="sub">Angkanya '+s+', ditebak dalam '+(k+1)+' kali</p>');return}
+    if(g<s)lo=Math.max(lo,g+1);else hi=Math.min(hi,g-1);
+    msg=P[who]+' menebak '+g+': '+(g<s?'terlalu kecil':'terlalu besar');
+    k++;
+  }
+  var my=(k%2===ME);
+  scr('a'+k+(my?'y':'n'),bk()+'<h2>Tebak Angka 🔢</h2><p class="sub">Angka rahasia ada di antara '+lo+' dan '+hi+'. Yang menebak tepat menang!</p><div class="card center">'+(msg?'<p>'+esc(msg)+'</p>':'')+(my?'<p>Giliran kamu, <b>'+esc(P[ME])+'</b></p><input type="number" id="ang" inputmode="numeric" placeholder="Tebakanmu"><button class="btn" onclick="angkaKirim('+k+','+lo+','+hi+')">Tebak</button>':'<p>Menunggu <b>'+esc(P[1-ME])+'</b> menebak…</p>')+'</div>');
+}
+function angkaKirim(k,lo,hi){
+  var v=parseInt(el('ang').value,10);
+  if(isNaN(v)||v<lo||v>hi){el('ang').focus();return}
+  gW('g'+k,v);
+}
+
+/* Tebak Pilihan */
+function rPilih(){
+  if(!bothReady()){lobby();return}
+  var P=CONFIG.pemain,Q=OG.c.q.split(',').map(function(i){return CONFIG.pilih[+i]}),r=OG.r||0,i,s=0;
+  for(i=0;i<Math.min(r,Q.length);i++){var aa=gP(i%2)['a'+i];if(aa!==undefined&&aa===gP(1-i%2)['g'+i])s++}
+  if(r>=Q.length){
+    OG.over=true;
+    var best=ls('bestK',0);if(s>best){best=s;sv('bestK',s)}
+    var m=s>=8?'Kompak banget, kalian emang cocok! 💕':s>=5?'Lumayan kompak, masih banyak yang bisa dicari tahu 😆':'Masih banyak yang harus saling kenalan nih 😂';
+    scr('pend',bk()+'<div class="card center"><h2>Skor kekompakan: '+s+' / '+Q.length+'</h2><p>'+m+'</p><p class="sub">Rekor terbaik: '+best+'</p><button class="btn" onclick="gAgain()">Main lagi</button></div>');
+    return;
+  }
+  var c=r%2,t=1-c,q=Q[r],a=gP(c)['a'+r],g=gP(t)['g'+r],head='<p class="sub">Ronde '+(r+1)+' dari '+Q.length+' • Kompak: '+s+'</p>';
+  function opts(fn){return q.map(function(x,k){return '<button class="opt" onclick="'+fn+'('+r+','+k+')">'+esc(x)+'</button>'}).join('')}
+  if(a!==undefined&&g!==undefined){
+    var ok=a===g;
+    scr('p'+r+'r',bk()+head+'<div class="card center"><p>'+esc(P[c])+' memilih: <b>'+esc(q[a])+'</b></p><p>'+esc(P[t])+' menebak: <b>'+esc(q[g])+'</b></p><h2>'+(ok?'Cocok! 💕':'Belum cocok 😆')+'</h2><button class="btn" onclick="pilNext()">Lanjut</button></div>');
+  }else if(ME===c){
+    if(a===undefined)scr('p'+r+'a',bk()+head+'<div class="card center"><b>Giliran kamu memilih, '+esc(P[c])+'</b><p class="sub">'+esc(P[t])+' akan menebak 🙈</p></div>'+opts('pilA'));
+    else scr('p'+r+'aw',bk()+head+'<div class="card center"><h2>Pilihan tersimpan ✅</h2><p class="sub">Menunggu '+esc(P[t])+' menebak…</p></div>');
+  }else{
+    if(a===undefined)scr('p'+r+'tw',bk()+head+'<div class="card center"><h2>Menunggu '+esc(P[c])+' memilih…</h2><p class="sub">Siap-siap menebak 🔮</p></div>');
+    else scr('p'+r+'g',bk()+head+'<div class="card center"><b>'+esc(P[t])+', tebak pilihan '+esc(P[c])+'!</b></div>'+opts('pilG'));
+  }
+}
+function pilA(r,k){if(OG&&OG.m==='pilih'&&gP(ME)['a'+r]===undefined)gW('a'+r,k)}
+function pilG(r,k){if(OG&&OG.m==='pilih'&&gP(ME)['g'+r]===undefined)gW('g'+r,k)}
+function pilNext(){OG.r=(OG.r||0)+1;OG.render()}
+
+/* ---- pembungkus tampilan: lacak layar aktif & keluar dari game online ---- */
+var DV={coreView:1,timelineView:1,misiView:1,skorView:1,papanView:1};
+['home','gachaView','coreView','timelineView','suratView','gameView','duelMenu','misiView','rodaView','skorView','tdView','papanView','pesanView','connectView'].forEach(function(n){
+  var f=window[n];
+  window[n]=function(){
+    gLeave();
+    CURV=DV[n]?n:null;
+    if(n==='gameView'||n==='duelMenu')CURM=n;
+    return f.apply(this,arguments);
+  };
+});
+
+connect();
+home();
+</script>
+</body>
+</html>
