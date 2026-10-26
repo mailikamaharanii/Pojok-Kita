@@ -362,21 +362,21 @@ var SYNC={core:1,visited:1,papan:1,skor:1,misiNow:1,bestK:1};
 var GNAME={tap:'Tap Race',reak:'Reaksi',suit:'Suit Berdua',angka:'Tebak Angka',pilih:'Tebak Pilihan'};
 
 function now(){return Date.now()+OFF}
-function ref(p){return FB.ref('pojokkita/'+ROOM+'/'+p)}
-function onlineReady(){return !!FB&&ME>=0}
+function ref(p){return FB.ref('pojokkita/'+(p.charAt(0)==='d'?'_semua':ROOM)+'/'+p)}
+function onlineReady(){return !!FB&&!!ROOM&&ME>=0}
 function OPN(){return CONFIG.pemain[1-ME]}
 function stText(){
-  if(!CONFIG.firebaseUrl)return '⚪ 2 HP belum diaktifkan';
-  if(!ROOM||ME<0)return '⚪ Belum terhubung, ketuk untuk atur';
+  if(!CONFIG.firebaseUrl)return '⚪ Penyimpanan online belum diaktifkan';
   if(typeof firebase==='undefined')return '🔴 Gagal memuat Firebase (cek internet)';
-  return (ONL?'🟢 Tersambung':'🟡 Menyambungkan…')+' sebagai '+CONFIG.pemain[ME];
+  var b=ONL?'🟢 Kenangan tersimpan online':'🟡 Menyambungkan…';
+  return b+((ROOM&&ME>=0)?' • game 2 HP sebagai '+CONFIG.pemain[ME]:' • ketuk untuk main game 2 HP');
 }
 function paintStatus(){var e=el('st');if(e)e.textContent=stText();var c=el('cst');if(c)c.textContent=stText()}
 function isTyping(){var a=document.activeElement;return !!a&&(a.tagName==='TEXTAREA'||a.tagName==='SELECT'||(a.tagName==='INPUT'&&a.type!=='checkbox'))}
 function refreshView(){if(CURV&&!OG&&!isTyping())window[CURV]()}
 
 function connect(){
-  if(FB||!ROOM||ME<0||!CONFIG.firebaseUrl||typeof firebase==='undefined')return;
+  if(FB||!CONFIG.firebaseUrl||typeof firebase==='undefined')return;
   try{
     if(!firebase.apps.length)firebase.initializeApp({databaseURL:CONFIG.firebaseUrl});
     FB=firebase.database();
@@ -384,7 +384,7 @@ function connect(){
   FB.ref('.info/serverTimeOffset').on('value',function(s){OFF=s.val()||0});
   FB.ref('.info/connected').on('value',function(s){ONL=!!s.val();paintStatus()});
   ref('d').on('value',onData);
-  ref('g').on('value',function(s){GD=s.val()||{};gUpdate()});
+  if(ROOM&&ME>=0)ref('g').on('value',function(s){GD=s.val()||{};gUpdate()});
 }
 function mergeV(k,l,r){
   if(l==null)return r;
@@ -417,20 +417,20 @@ function onData(snap){
 function connectView(){
   var P=CONFIG.pemain;
   if(!CONFIG.firebaseUrl){
-    app.innerHTML=back()+'<h2>Hubungkan 2 HP 🔗</h2><div class="card"><p>Fitur ini belum diaktifkan. Isi <b>firebaseUrl</b> di bagian CONFIG pada file ini (di atas, dekat <b>pemain</b>), lalu buka ulang.</p></div>';
+    app.innerHTML=back()+'<h2>Hubungkan 2 HP 🔗</h2><div class="card"><p>Penyimpanan online belum diaktifkan. Isi <b>firebaseUrl</b> di bagian CONFIG pada file ini (di atas, dekat <b>pemain</b>), lalu buka ulang.</p></div>';
     return;
   }
-  app.innerHTML=back()+'<h2>Hubungkan 2 HP 🔗</h2><p class="sub">Masukkan kode yang sama di kedua HP, lalu pilih kamu siapa.</p><div class="card"><b>Kode ruangan</b><input id="rm" placeholder="Contoh: meii-rifky-2410" value="'+esc(ROOM)+'" autocapitalize="none" autocomplete="off"><b>Kamu siapa?</b><div style="margin:6px 0 10px"><button class="chip'+(pickedMe===0?' on':'')+'" onclick="pickMe(0)">'+esc(P[0])+'</button><button class="chip'+(pickedMe===1?' on':'')+'" onclick="pickMe(1)">'+esc(P[1])+'</button></div><button class="btn" onclick="saveConn()">Hubungkan</button><p class="sub" id="cst" style="margin-top:12px">'+esc(stText())+'</p></div>'+(ROOM?'<div class="center"><button class="chip" onclick="putus()">Putuskan koneksi</button></div>':'')+'<p class="sub">Pakai kode yang sulit ditebak. Siapa pun yang tahu kodenya bisa melihat data kalian.</p>';
+  app.innerHTML=back()+'<h2>Main game 2 HP 🔗</h2><p class="sub">Kenangan, wishlist, dan skor sudah otomatis tersimpan online untuk siapa pun yang membuka aplikasi ini. Kode di bawah hanya untuk menyambungkan dua HP saat main game bareng.</p><div class="card"><b>Kode ruangan</b><input id="rm" placeholder="Contoh: meii-rifky-2410" value="'+esc(ROOM)+'" autocapitalize="none" autocomplete="off"><b>Kamu siapa?</b><div style="margin:6px 0 10px"><button class="chip'+(pickedMe===0?' on':'')+'" onclick="pickMe(0)">'+esc(P[0])+'</button><button class="chip'+(pickedMe===1?' on':'')+'" onclick="pickMe(1)">'+esc(P[1])+'</button></div><button class="btn" onclick="saveConn()">Hubungkan</button><p class="sub" id="cst" style="margin-top:12px">'+esc(stText())+'</p></div>'+(ROOM?'<div class="center"><button class="chip" onclick="putus()">Putuskan koneksi</button></div>':'')+'<p class="sub">Pakai kode yang sama di kedua HP. Orang lain dengan kode berbeda tidak akan masuk ke game kalian.</p>';
 }
 function pickMe(i){var rm=el('rm'),v=rm?rm.value:'';pickedMe=i;connectView();el('rm').value=v}
 function saveConn(){
   var r=el('rm').value.trim().toLowerCase().replace(/[^a-z0-9_-]/g,'');
   if(r.length<6){el('cst').textContent='Kode minimal 6 karakter (huruf, angka, strip).';return}
   if(pickedMe<0){el('cst').textContent='Pilih dulu kamu siapa.';return}
-  try{if(r!==ROOM)localStorage.removeItem('pk_merged');localStorage.setItem('pk_room',r);localStorage.setItem('pk_me',String(pickedMe))}catch(e){}
+  try{localStorage.setItem('pk_room',r);localStorage.setItem('pk_me',String(pickedMe))}catch(e){}
   location.reload();
 }
-function putus(){try{localStorage.removeItem('pk_room');localStorage.removeItem('pk_me');localStorage.removeItem('pk_merged')}catch(e){}location.reload()}
+function putus(){try{localStorage.removeItem('pk_room');localStorage.removeItem('pk_me')}catch(e){}location.reload()}
 
 /* ---------- Game 2 HP ---------- */
 function modeChips(){
